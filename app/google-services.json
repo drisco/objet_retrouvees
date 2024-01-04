@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324196247081",
+    "project_id": "soutrali-8e9b7",
+    "storage_bucket": "soutrali-8e9b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324196247081:android:46787f590445885c061e38",
+        "android_client_info": {
+          "package_name": "com.soutra.soutramoi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAPDHmA3643gYJ73OrkKZuilkhoqFDx0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

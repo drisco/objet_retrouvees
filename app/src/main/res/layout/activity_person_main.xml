@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EFF4F4"
+    android:orientation="vertical"
+    tools:context=".PersonMain">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#5BC0EB">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Les personnes disparues"
+            android:fontFamily="@font/montserrat_bold"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+    </androidx.appcompat.widget.Toolbar>
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/input_costum"
+        android:focusable="false"
+        android:textColorHint="@color/white"
+        app:closeIcon="@drawable/ic_close"
+        app:iconifiedByDefault="false"
+        app:queryHint="Search"
+        android:elevation="2dp"
+        app:searchHintIcon="@null"
+        android:paddingStart="-10dp"
+        app:searchIcon="@drawable/_search"
+        tools:ignore="MissingConstraints"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Aucune annonce pour le moment"
+            android:textColor="@color/red"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textSize="18sp"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Aucun resultat"
+            android:textColor="@color/red"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textSize="18sp"
+            android:layout_gravity="center"/>
+        <ProgressBar
+            android:id="@+id/load"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_centerVertical="true"
+            android:progressTint="@color/green"/>
+    </RelativeLayout>
+
+</LinearLayout>

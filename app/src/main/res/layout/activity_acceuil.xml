@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:background="@drawable/fontle"
+    android:orientation="vertical"
+    tools:context=".Acceuil">
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:paddingTop="25dp"
+        android:elevation="3dp"
+        android:paddingBottom="25dp"
+        android:background="@drawable/costumize"
+        android:backgroundTint="#5BC0EB"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="1dp"
+            android:gravity="center_horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/editborder"
+                android:text="Soutra Moi"
+                android:textSize="26dp"
+                android:padding="10dp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl2"
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:layout_centerHorizontal="true">
+            <LinearLayout
+                android:id="@+id/ll3"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:elevation="5dp"
+                android:clickable="true"
+                android:onClick="onLinearLayoutClick"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:foregroundTint="?android:attr/colorControlHighlight"
+                android:background="@drawable/editborder"
+                android:backgroundTint="#FFC857"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/street"/>
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:text="Avis de disparution\nhomme"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll2"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/editborder"
+                android:orientation="vertical"
+                android:backgroundTint="#E23E57"
+                android:elevation="5dp"
+                android:clickable="true"
+                android:onClick="onLinearLayoutClick"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:foregroundTint="?android:attr/colorControlHighlight"
+                android:padding="10dp"
+                android:layout_toEndOf="@+id/ll3"
+                android:layout_marginStart="20dp">
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/icons"/>
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:text="Recherche des pièces égarées"/>
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

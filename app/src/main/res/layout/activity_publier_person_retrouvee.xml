@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#DDE6E1E5"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <ImageView
+                android:id="@+id/imageViewSelectedImage"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:onClick="showOptionsPopup"
+                android:layout_gravity="center"
+                android:background="@drawable/input_border"
+                android:layout_marginTop="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/gall" />
+
+            <EditText
+                android:id="@+id/editTextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/input_border"
+                android:hint="Nom de l'individu retrouvé(facultatif)"
+                android:inputType="text" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/age"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:padding="10dp"
+                    android:layout_margin="5dp"
+                    android:backgroundTint="@color/black"
+                    android:background="@drawable/input_border"
+                    android:text=" Lieu"
+                    android:textSize="12dp"
+                    android:textColor="@color/white"
+                    />
+                <EditText
+                    android:id="@+id/editTextLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:padding="10dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/input_border"
+                    android:hint=" Abidjan, Cocody"
+                    android:inputType="text" />
+            </LinearLayout>
+            
+            <EditText
+                android:id="@+id/descr"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@drawable/input_border"
+                android:layout_margin="5dp"
+                android:padding="10dp"
+                android:hint="Description  l'individu retrouvé"/>
+            <EditText
+                android:id="@+id/editTextVictimName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/input_border"
+                android:hint="Votre Nom"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:padding="10dp"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/editTextContactNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:padding="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/input_border"
+                android:hint="+2250598652101"
+                android:inputType="phone" />
+
+            <Button
+                android:id="@+id/buttonPublish"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/costum_border_pays"
+                android:layout_height="wrap_content"
+                android:text="Publier maintenant" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

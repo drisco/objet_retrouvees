@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/para"
+        android:title="Paramètres"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/voir"
+        android:title="Voir"
+        app:showAsAction="never"/>
+    <!-- Ajoutez d'autres éléments de menu au besoin -->
+</menu>
+

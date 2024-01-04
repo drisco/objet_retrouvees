@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_gravity="center"
+    android:layout_margin="25dp"
+    android:background="@drawable/costum_border_pays"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nom du Pays"
+        android:fontFamily="@font/gotham_medium"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Veuiller entrer le nom correct de votre pays et le code postal afin de ne pas manquer toutes les publications que ça soit  objets ou hommes égarés et retrouvés dans votre pays."
+        android:textSize="12dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+    <EditText
+        android:id="@+id/editTextPopup"
+        android:layout_width="match_parent"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/input_costum"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:inputType="text"
+        android:maxEms="35"
+        android:padding="10dp"
+        android:hint="Saisissez le pays" />
+    <EditText
+        android:id="@+id/editTextPopup2"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/input_costum"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:inputType="phone"
+        android:maxLength="10"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:hint="Ex:+33" />
+
+
+
+    <Button
+        android:id="@+id/btnOK"
+        android:layout_width="210dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
+        android:text="Ajouter" />
+</LinearLayout>

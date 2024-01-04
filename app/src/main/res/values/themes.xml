@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary brand color. -->
+<!--
+        <item name="colorPrimary">#D62121</item>
+-->
+        <item name="colorPrimaryVariant">#6BA3B5</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#11D2D6</item>
+        <item name="colorSecondaryVariant">#4884AC</item>
+        <item name="colorOnSecondary">#754848</item>
+        <!-- Couleur principale de l'application -->
+        <item name="colorPrimary">@color/red</item>
+
+        <!-- Couleur de l'arrière-plan de la barre de statut (status bar) -->
+        <item name="android:statusBarColor">#5BC0EB</item>
+
+        <!-- Couleur de la barre de navigation (navigation bar) -->
+        <item name="android:navigationBarColor">#ffff</item>
+        <!-- Status bar color. -->
+    </style>
+    <style name="Theme.SoutraMoi" parent="Base.Theme.SoutraMoi" />
+</resources>
