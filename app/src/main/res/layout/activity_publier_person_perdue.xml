@@ -113,7 +113,7 @@
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
                 android:background="@drawable/input_border"
-                android:hint="Son numéro de télephone"
+                android:hint="Numero de télephone"
                 android:inputType="phone" />
 
             <Button

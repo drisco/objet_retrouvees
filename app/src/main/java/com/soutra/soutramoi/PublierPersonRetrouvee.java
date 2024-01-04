@@ -97,16 +97,12 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
                     progressDialog.dismiss();
                     return;
                 }
-                if (editTextContactNumber.getText().toString().isEmpty()||editTextContactNumber.getText().toString().length()<10) {
+                if (editTextContactNumber.getText().toString().isEmpty()||editTextContactNumber.getText().toString().length()<5) {
                     editTextContactNumber.setError("Ce champ est obligatoire.");
                     progressDialog.dismiss();
                     return;
                 }
-                if (!(editTextContactNumber.getText().toString().contains("+"))){
-                    editTextContactNumber.setError("Ajouter code postal");
-                    progressDialog.dismiss();
-                    return;
-                }
+
                 String titre =editTextTitle.getText().toString();
                 String ville =editTextLocation.getText().toString();
                 String nom =editTextVictimName.getText().toString();

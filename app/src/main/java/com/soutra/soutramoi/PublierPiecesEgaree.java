@@ -114,17 +114,11 @@ public class PublierPiecesEgaree extends AppCompatActivity {
                     progressDialog.dismiss();
                     return;
                 }
-                if (numero.getText().toString().isEmpty()|| numero.getText().toString().length()<10) {
+                if (numero.getText().toString().isEmpty()|| numero.getText().toString().length()<5) {
                     numero.setError("Ce champ est obligatoire.");
                     progressDialog.dismiss();
                     return;
                 }
-                if (!(numero.getText().toString().contains("+"))) {
-                    numero.setError("Le code postal suivi le numero");
-                    progressDialog.dismiss();
-                    return;
-                }
-
                 AddInfos();
             }
         });

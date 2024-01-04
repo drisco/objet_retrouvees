@@ -140,6 +140,11 @@ public class PublierPersonPerdue extends AppCompatActivity {
                     ville.setError("Ce champ est obligatoire.");
                     return;
                 }
+                if (numero.getText().toString().isEmpty()||numero.getText().toString().length()<5) {
+                    numero.setError("Ce champ est obligatoire.");
+                    progressDialog.dismiss();
+                    return;
+                }
                 if (captureImage == null) {
                     progressDialog.dismiss();
                     Toast.makeText(PublierPersonPerdue.this, "image de l'objet est obligatoire", Toast.LENGTH_SHORT).show();
