@@ -65,6 +65,9 @@
             android:exported="false" />
         <activity
             android:name=".Acceuil"
+            android:exported="false" />
+        <activity
+            android:name=".Cover"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

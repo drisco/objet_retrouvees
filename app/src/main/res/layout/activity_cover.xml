@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fontle">
+
+    <!-- Contenu de la cover page -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnNext">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="#80FFFFFF"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
+
+            <!-- Titre de l'application -->
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bienvenue sur"
+                android:textSize="24sp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Description de l'application -->
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Soutra moi"
+                android:textColor="@color/white"
+                android:padding="20dp"
+                android:textSize="24dp"
+                android:textStyle="bold"
+                android:background="@drawable/input_costum"
+                android:backgroundTint="@color/red"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/textTitle"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Politique de confidentialité -->
+            <TextView
+                android:id="@+id/textPolicy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="'Soutra Moi' est une application dédiée à simplifier la publication et la recherche d'objets et de personnes égarés. Que vous ayez perdu quelque chose de précieux ou que vous ayez trouvé quelque chose d'appartenant à quelqu'un d'autre."
+                android:layout_below="@+id/textDescription"
+                android:layout_marginTop="8dp"
+                android:elevation="2dp"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:layout_marginBottom="16dp"/>
+            <TextView
+                android:id="@+id/textPolicy1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="'Soutra Moi' vous offre une plateforme intuitive pour publier et retrouver rapidement vos biens. Publiez des informations détaillées sur les objets ou personnes égarés, y compris des photos et des descriptions, et explorez les annonces existantes pour aider à reconnecter propriétaires et retrouveurs."
+                android:layout_below="@+id/textPolicy"
+                android:layout_marginTop="8dp"
+                android:elevation="2dp"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/textPolicy2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textPolicy1"
+                android:layout_marginTop="8dp"
+                android:elevation="2dp"
+                android:textColor="@color/black"
+                android:text=" Avec 'Soutra Moi', facilitez le processus de récupération et contribuez à ramener ce qui est perdu à sa place légitime. Une communauté unie au service du partage, de l'empathie, et de la résolution rapide des pertes."
+                android:textSize="16dp"
+                android:layout_marginBottom="16dp"/>
+
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <!-- Bouton Suivant -->
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="15dp"
+        android:textStyle="bold"
+        android:elevation="2dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/next_costum"
+        android:text="Suivant" />
+
+</RelativeLayout>

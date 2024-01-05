@@ -99,4 +99,12 @@ public class Acceuil extends AppCompatActivity {
 
         return normalizedCityName;
     }
+    @Override
+    public void onBackPressed() {
+
+        incr++;
+        if (incr == 2) {
+            super.onBackPressed();
+        }
+    }
 }

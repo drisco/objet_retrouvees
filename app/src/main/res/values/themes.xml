@@ -4,7 +4,7 @@
         <!-- Primary brand color. -->
 <!--
         <item name="colorPrimary">#D62121</item>
--->
+-->    <item name="android:screenOrientation">portrait</item>
         <item name="colorPrimaryVariant">#6BA3B5</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
