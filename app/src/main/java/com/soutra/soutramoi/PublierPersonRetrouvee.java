@@ -3,53 +3,63 @@ package com.soutra.soutramoi;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-        import android.app.AlertDialog;
-        import android.app.ProgressDialog;
-        import android.content.DialogInterface;
-        import android.content.Intent;
-        import android.content.pm.PackageManager;
-        import android.graphics.Bitmap;
-        import android.net.Uri;
-        import android.provider.MediaStore;
-        import android.view.View;
-        import android.widget.Button;
-        import android.widget.ImageView;
-        import android.widget.TextView;
-        import android.widget.Toast;
-        import androidx.annotation.NonNull;
-        import androidx.annotation.Nullable;
-        import androidx.appcompat.app.AppCompatActivity;
-        import android.os.Bundle;
-        import androidx.core.content.ContextCompat;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import androidx.core.content.ContextCompat;
 
-        import com.google.firebase.database.*;
-        import com.google.firebase.storage.FirebaseStorage;
-        import com.google.firebase.storage.StorageReference;
-        import com.google.firebase.storage.UploadTask;
-        import com.soutra.soutramoi.PieceTrouveeMain;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.database.*;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.soutra.soutramoi.PieceTrouveeMain;
 
-        import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
-        import java.io.ByteArrayOutputStream;
-        import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-        import java.util.Date;
-        import java.util.HashMap;
-        import java.util.Locale;
-        import java.util.Map;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class PublierPersonRetrouvee extends AppCompatActivity {
     int incr;
     String idpays,postal;
     Bitmap captureImage;
     byte[] imageData;
+    private List<Bitmap> selectedImages = new ArrayList<>();
     Uri uri;
     ImageView imageViewSelectedImage;
     ProgressDialog progressDialog;
     TextView editTextTitle,editTextLocation,editTextVictimName,editTextContactNumber,descr;
     Button buttonPublish;
-
+    private LinearLayout imageContainer;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,7 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
         editTextLocation = findViewById(R.id.editTextLocation);
         editTextVictimName = findViewById(R.id.editTextVictimName);
         editTextContactNumber = findViewById(R.id.editTextContactNumber);
+        imageContainer = findViewById(R.id.imageContainer);
         progressDialog = new ProgressDialog(PublierPersonRetrouvee.this);
         buttonPublish = findViewById(R.id.buttonPublish);
         int permissionCheck = ContextCompat.checkSelfPermission(PublierPersonRetrouvee.this,
@@ -74,8 +85,10 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
                 progressDialog.setMessage("Traitement en cours..."); // Message à afficher
                 progressDialog.setCancelable(false); // Empêche la fermeture de la boîte de dialogue en dehors du code
                 progressDialog.show();
-                if (imageViewSelectedImage.getDrawable() != null) {
+                if (selectedImages.isEmpty()) {
+                    progressDialog.dismiss();
                     Toast.makeText(PublierPersonRetrouvee.this, "Image de l'individu est obligatoire", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 if (editTextLocation.getText().toString().isEmpty()) {
                     editTextLocation.setError("Ce champ est obligatoire.");
@@ -116,12 +129,7 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
                 }else{
                     numero=postal+removeSpace(numero1);
                 }
-                if (captureImage == null) {
-                    progressDialog.dismiss();
-                    Toast.makeText(PublierPersonRetrouvee.this, "image de l'objet est obligatoire", Toast.LENGTH_SHORT).show();
-                }else{
-                    MethodPublier(titre,ville,nom,numero,idpays,imageData,description);
-                }
+                MethodPublier(titre,ville,nom,numero,idpays,imageData,description);
 
             }
         });
@@ -152,6 +160,7 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
         if (requestCode == 100) {
             if (resultCode == Activity.RESULT_OK){
                 captureImage = (Bitmap) data.getExtras().get("data");
+                addImageToContainer(captureImage);
             }
         }
         if (captureImage != null) {
@@ -163,60 +172,84 @@ public class PublierPersonRetrouvee extends AppCompatActivity {
         }
     }
 
+    private void addImageToContainer(Bitmap Image) {
+        selectedImages.add(Image);
+        refreshImageContainer();
+    }
+
+    private void refreshImageContainer() {
+        imageContainer.removeAllViews();
+        for (Bitmap bitmap : selectedImages) {
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0);
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            Glide.with(this).load(bitmap)
+                    .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                    .into(imageView);
+            imageContainer.addView(imageView);
+        }
+    }
+
     private void MethodPublier(String titre, String ville, String nom, String numero, String idpays, byte[] imageData , String description) {
         // Obtenez une référence à Firebase Storage
+        List<String> imageUris = new ArrayList<>();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         String timestamp = String.valueOf(System.currentTimeMillis());
         StorageReference imageRef = storageRef.child("dbphotopersonnetrouvee/"+timestamp + ".jpg");
+        final DatabaseReference RootRef;
+        RootRef = FirebaseDatabase.getInstance().getReference("person retrouves").child(idpays).push();
+        Date currentDate = new Date();
+        String id = RootRef.getKey();
 
-        // Téléchargez l'image dans Firebase Storage
-        UploadTask uploadTask = imageRef.putBytes(imageData);
-        // Obtenez l'URL de téléchargement de l'image depuis Firebase Storage
-        uploadTask.continueWithTask(task -> {
-            if (!task.isSuccessful()) {
-                throw task.getException();
-            }
-            return imageRef.getDownloadUrl();
-        }).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri downloadUri = task.getResult();
-                final DatabaseReference RootRef;
-                RootRef = FirebaseDatabase.getInstance().getReference("person retrouves").child(idpays).push();
-                Date currentDate = new Date();
-                String id = RootRef.getKey();
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
-                String formattedDate = dateFormat.format(currentDate);
-                RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                        String utf8Descrs = new String(description.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-                        Map<String, Object> etudiant = new HashMap<>();
-                        etudiant.put("id", id);
-                        etudiant.put("titre", titre);
-                        etudiant.put("description", utf8Descrs);
-                        etudiant.put("photo", downloadUri.toString());
-                        etudiant.put("numero", numero);
-                        etudiant.put("ville", ville);
-                        etudiant.put("nom", nom);
-                        etudiant.put("date", formattedDate);
-                        RootRef.setValue(etudiant);
-                        startActivity(new Intent(PublierPersonRetrouvee.this, PieceTrouveeMain.class));
-                        finish();
-                        progressDialog.dismiss();
+        for (Bitmap bitmap : selectedImages) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = imageRef.putBytes(data);
+            uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+                return imageRef.getDownloadUrl();
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()){
+                    imageUris.add(task.getResult().toString());
+                    if (imageUris.size() == selectedImages.size()) {
+
+                        RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                String utf8Descrs = new String(description.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                                Map<String, Object> etudiant = new HashMap<>();
+                                etudiant.put("id", id);
+                                etudiant.put("titre", titre);
+                                etudiant.put("description", utf8Descrs);
+                                etudiant.put("imageUris", imageUris);
+                                etudiant.put("numero", numero);
+                                etudiant.put("ville", ville);
+                                etudiant.put("nom", nom);
+                                etudiant.put("date", currentDate);
+                                RootRef.setValue(etudiant);
+                                startActivity(new Intent(PublierPersonRetrouvee.this, PieceTrouveeMain.class));
+                                finish();
+                                progressDialog.dismiss();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                            }
+                        });
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-                    }
-                });
-
-            } else {
-                // Gérer l'erreur lors de la récupération de l'URL de téléchargement
-            }
-        });
+                }
+            });
+        }
 
     }
 

@@ -2,24 +2,32 @@ package com.soutra.soutramoi;
 
 import android.annotation.SuppressLint;
         import android.app.Activity;
-        import android.content.Context;
+import android.app.Dialog;
+import android.content.Context;
         import android.content.Intent;
-        import android.view.LayoutInflater;
+import android.view.Gravity;
+import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
         import androidx.annotation.NonNull;
         import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.soutra.soutramoi.models.PersonTrouvee;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
         import org.jetbrains.annotations.NotNull;
 
         import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class PersonTrouveAdapter extends RecyclerView.Adapter<PersonTrouveAdapter.ViewHolder>{
     private List<PersonTrouvee> usersList;
@@ -50,19 +58,26 @@ public class PersonTrouveAdapter extends RecyclerView.Adapter<PersonTrouveAdapte
     public void onBindViewHolder(PersonTrouveAdapter.ViewHolder holder, int position) {
 
         PersonTrouvee lists = usersList.get(position);
-        if (!lists.getPhoto().isEmpty()){
-            Picasso.get()
-                    .load(lists.getPhoto()).into(holder.imageViewPhoto, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible après le chargement réussi
-                        }
+        for (String imageUrl : lists.getImageUris()) {
+            ImageView imageView = new ImageView(context);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0); // Set margin if needed
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(R.drawable.fonti) // Charge l'image par défaut
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            } else {
+                Glide.with(context)
+                        .load(imageUrl)
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible en cas d'erreur de chargement
-                        }
-                    });
+            imageView.setOnClickListener(v -> showImageDialog(imageUrl != null && !imageUrl.isEmpty() ? imageUrl : "default_image_url"));
+            holder.imageContainer.addView(imageView);
         }
         holder.textViewTitle.setText(lists.getTitre());
         holder.textViewName.setText(lists.getNom());
@@ -70,19 +85,20 @@ public class PersonTrouveAdapter extends RecyclerView.Adapter<PersonTrouveAdapte
         holder.textViewCity.setText(lists.getVille());
         holder.textViewDate.setText(lists.getDate());
         holder.descr.setText(lists.getDescription());
-        holder.imageViewPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // ((listView)context).other();
-                Intent intent = new Intent(context,PhotoView.class);
-                intent.putExtra("id","personne trouvee");
-                intent.putExtra("photo",lists.getPhoto());
-                context.startActivity(intent);
-                ((Activity)context).finish();
-            }
+        holder.imageContainer.removeAllViews();
+    }
 
+    private void showImageDialog(String imageUrl) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(R.layout.dialog_image_view);
 
-        });
+        ImageView fullImageView = bottomSheetDialog.findViewById(R.id.fullImageView);
+        Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.fonti) // Image par défaut en cas d'erreur ou de chargement
+                .into(fullImageView);
+
+        bottomSheetDialog.show();
     }
 
 
@@ -109,12 +125,13 @@ public class PersonTrouveAdapter extends RecyclerView.Adapter<PersonTrouveAdapte
         TextView textViewName,call;
         TextView textViewNumber,descr;
         TextView textViewCity;
+        LinearLayout imageContainer;
         TextView textViewDate;
 
 
         ViewHolder(View itemView) {
             super(itemView);
-            imageViewPhoto = itemView.findViewById(R.id.imageViewPhoto1);
+
             textViewTitle = itemView.findViewById(R.id.textViewTitle1);
             textViewName = itemView.findViewById(R.id.textViewName1);
             textViewNumber = itemView.findViewById(R.id.textViewNumber1);
@@ -122,8 +139,9 @@ public class PersonTrouveAdapter extends RecyclerView.Adapter<PersonTrouveAdapte
             call = itemView.findViewById(R.id.call1);
             textViewCity = itemView.findViewById(R.id.textViewCity1);
             textViewDate = itemView.findViewById(R.id.textViewDate1);
-            progressBar = itemView.findViewById(R.id.bar);
+
             progressBar.setVisibility(View.VISIBLE);
+            imageContainer = itemView.findViewById(R.id.imageContainer);
             call.setOnClickListener(this);
         }
 

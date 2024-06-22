@@ -1,5 +1,7 @@
 package com.soutra.soutramoi.models;
 
+import java.util.List;
+
 public class Egaree {
     String id;
     String titre;
@@ -8,13 +10,12 @@ public class Egaree {
     String numero;
     String ville;
     String date;
-
-    String photo;
+    private List<String> imageUris;
 
     public Egaree() {
     }
 
-    public Egaree(String id, String titre, String descr, String nom, String numero, String ville, String date, String photo) {
+    public Egaree(String id, String titre, String descr, String nom, String numero, String ville, String date, List<String> imageUris) {
         this.id = id;
         this.titre = titre;
         this.descr = descr;
@@ -22,7 +23,7 @@ public class Egaree {
         this.numero = numero;
         this.ville = ville;
         this.date = date;
-        this.photo = photo;
+        this.imageUris = imageUris;
     }
 
     public String getId() {
@@ -49,11 +50,11 @@ public class Egaree {
         this.descr = descr;
     }
 
-    public String getnom() {
+    public String getNom() {
         return nom;
     }
 
-    public void setnom(String nom) {
+    public void setNom(String nom) {
         this.nom = nom;
     }
 
@@ -72,6 +73,7 @@ public class Egaree {
     public void setVille(String ville) {
         this.ville = ville;
     }
+
     public String getDate() {
         return date;
     }
@@ -80,11 +82,11 @@ public class Egaree {
         this.date = date;
     }
 
-    public String getPhoto() {
-        return photo;
+    public List<String> getImageUris() {
+        return imageUris;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public void setImageUris(List<String> imageUris) {
+        this.imageUris = imageUris;
     }
 }

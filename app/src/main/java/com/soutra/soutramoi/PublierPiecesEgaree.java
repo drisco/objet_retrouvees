@@ -12,10 +12,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +27,8 @@ import androidx.core.content.ContextCompat;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -36,15 +40,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class PublierPiecesEgaree extends AppCompatActivity {
     int incr;
     TextView titre,descr,nom,numero,ville,date;
+    private List<Bitmap> selectedImages = new ArrayList<>();
+    private LinearLayout imageContainer;
     Bitmap captureImage;
     ProgressDialog progressDialog;
     String   postal;
@@ -61,6 +71,7 @@ public class PublierPiecesEgaree extends AppCompatActivity {
         setContentView(R.layout.activity_publier_pieces_egaree);
         imageViewSelectedImage = findViewById(R.id.imageViewSelectedImage);
         titre = findViewById(R.id.editTextTitle);
+        imageContainer = findViewById(R.id.imageContainer);
         descr = findViewById(R.id.editTextDescription);
         nom = findViewById(R.id.editTextVictimName);
         numero = findViewById(R.id.editTextContactNumber);
@@ -179,13 +190,14 @@ public class PublierPiecesEgaree extends AppCompatActivity {
         if (requestCode == 100) {
             if (resultCode == Activity.RESULT_OK){
                 captureImage = (Bitmap) data.getExtras().get("data");
+                addImageToContainer(captureImage);
             }
         }else if(requestCode == 120){
             if (resultCode==Activity.RESULT_OK){
                 uri = data.getData();
                 try {
                     captureImage =MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
-
+                    addImageToContainer(captureImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -200,89 +212,105 @@ public class PublierPiecesEgaree extends AppCompatActivity {
 
         }
     }
+
+    private void addImageToContainer(Bitmap Image) {
+        selectedImages.add(Image);
+        refreshImageContainer();
+    }
+
+    private void refreshImageContainer() {
+        imageContainer.removeAllViews();
+        for (Bitmap bitmap : selectedImages) {
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0);
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            Glide.with(this).load(bitmap)
+                    .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                    .into(imageView);
+            imageContainer.addView(imageView);
+        }
+    }
+
     private void AddInfos() {
+        List<String> imageUris = new ArrayList<>();
         String   idpays = MySharePreference.readString(PublierPiecesEgaree.this, "pays", "");
            postal = MySharePreference.readString(PublierPiecesEgaree.this, "postal", "");
+        Uri downloadUri;
+        final DatabaseReference RootRef;
+        RootRef = FirebaseDatabase.getInstance().getReference("objets perdus").child(idpays).push();
+        String id = RootRef.getKey();
+        String titres=titre.getText().toString();
+        String descrs=descr.getText().toString();
+        String noms=nom.getText().toString();
+        String numeros1=numero.getText().toString();
+        String numeros="";
+        if (numeros1.contains("+")){
+            numeros =removeSpace(numeros1);
+        }else{
+            numeros=postal+removeSpace(numeros1);
+        }
+        String villes=ville.getText().toString();
+        Date currentDate = new Date();
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+
+        String formattedDate = dateFormat.format(currentDate);
+
+        String finalNumeros = numeros;
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         String timestamp = String.valueOf(System.currentTimeMillis());
         StorageReference imageRef = storageRef.child("photo_de_piece_egaree/"+timestamp + ".jpg");
         if (imageData != null) {
-            // Téléchargez l'image dans Firebase Storage
-            UploadTask uploadTask = imageRef.putBytes(imageData);
-            // Obtenez l'URL de téléchargement de l'image depuis Firebase Storage
-            uploadTask.continueWithTask(task -> {
-                if (!task.isSuccessful()) {
-                    throw task.getException();
-                }
-                return imageRef.getDownloadUrl();
-            }).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Uri downloadUri = task.getResult();
-                    final DatabaseReference RootRef;
-                    RootRef = FirebaseDatabase.getInstance().getReference("objets perdus").child(idpays).push();
-                    String id = RootRef.getKey();
-                    String titres=titre.getText().toString();
-                    String descrs=descr.getText().toString();
-                    String noms=nom.getText().toString();
-                    String numeros1=numero.getText().toString();
-                    String numeros="";
-                    if (numeros1.contains("+")){
-                        numeros =removeSpace(numeros1);
-                    }else{
-                        numeros=postal+removeSpace(numeros1);
+            for (Bitmap bitmap : selectedImages) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = imageRef.putBytes(data);
+                uploadTask.continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
                     }
-                    String villes=ville.getText().toString();
-                    Date currentDate = new Date();
+                    return imageRef.getDownloadUrl();
+                }).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        imageUris.add(task.getResult().toString());
+                        if (imageUris.size() == selectedImages.size()) {
+                            RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                    String utf8Descrs = new String(descrs.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                                    Map<String, Object> etudiant = new HashMap<>();
+                                    etudiant.put("id", id);
+                                    etudiant.put("titre", titres);
+                                    etudiant.put("descr", utf8Descrs);
+                                    etudiant.put("numero", finalNumeros);
+                                    etudiant.put("ville", villes);
+                                    etudiant.put("imageUris", imageUris);
+                                    etudiant.put("nom", noms);
+                                    etudiant.put("date", formattedDate);
+                                    RootRef.setValue(etudiant);
+                                    progressDialog.dismiss();
+                                    startActivity(new Intent(PublierPiecesEgaree.this,PiecesMainActivity.class));
+                                    finish();
+                                }
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+                                @Override
+                                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                                    progressDialog.dismiss();
+                                }
+                            });
 
-                    String formattedDate = dateFormat.format(currentDate);
-
-                    String finalNumeros = numeros;
-                    RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                            String utf8Descrs = new String(descrs.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-                            Map<String, Object> etudiant = new HashMap<>();
-                            etudiant.put("id", id);
-                            etudiant.put("titre", titres);
-                            etudiant.put("descr", utf8Descrs);
-                            etudiant.put("numero", finalNumeros);
-                            etudiant.put("ville", villes);
-                            etudiant.put("photo", downloadUri.toString());
-                            etudiant.put("nom", noms);
-                            etudiant.put("date", formattedDate);
-                            RootRef.setValue(etudiant);
-                            progressDialog.dismiss();
-                            startActivity(new Intent(PublierPiecesEgaree.this,PiecesMainActivity.class));
-                            finish();
                         }
+                    }
+                });
+            }
 
-                        @Override
-                        public void onCancelled(@NonNull @NotNull DatabaseError error) {
-                            progressDialog.dismiss();
-                        }
-                    });
-                }
-
-            });
         }else{
-            final DatabaseReference RootRef;
-            RootRef = FirebaseDatabase.getInstance().getReference("objets perdus").child(idpays).push();
-            String id = RootRef.getKey();
-            String titres=titre.getText().toString();
-            String descrs=descr.getText().toString();
-            String noms=nom.getText().toString();
-            String numeros1=numero.getText().toString();
-            String numeros=removeSpace(numeros1);
-            String villes=ville.getText().toString();
-            Date currentDate = new Date();
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
-
-            String formattedDate = dateFormat.format(currentDate);
 
             RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -292,7 +320,7 @@ public class PublierPiecesEgaree extends AppCompatActivity {
                     etudiant.put("id", id);
                     etudiant.put("titre", titres);
                     etudiant.put("descr", utf8Descrs);
-                    etudiant.put("numero", numeros);
+                    etudiant.put("numero", finalNumeros);
                     etudiant.put("ville", villes);
                     etudiant.put("photo", "");
                     etudiant.put("nom", noms);

@@ -5,10 +5,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.soutra.soutramoi.models.PersonEgaree;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -24,6 +29,8 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class AdapterPersonPerdue extends RecyclerView.Adapter<AdapterPersonPerdue.ViewHolder>{
     private List<PersonEgaree> usersList;
@@ -56,21 +63,26 @@ public class AdapterPersonPerdue extends RecyclerView.Adapter<AdapterPersonPerdu
 
         PersonEgaree lists = usersList.get(position);
 
-        if (!lists.getPhotoUrl().isEmpty()){
-            Picasso.get()
-                    .load(lists.getPhotoUrl()).into(holder.imageViewPhoto1, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible après le chargement réussi
-                        }
+        for (String imageUrl : lists.getImageUris()) {
+            ImageView imageView = new ImageView(context);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0); // Set margin if needed
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(R.drawable.fonti) // Charge l'image par défaut
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            } else {
+                Glide.with(context)
+                        .load(imageUrl)
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible en cas d'erreur de chargement
-                        }
-                    });
-        }else{
-            Picasso.get().load(R.drawable._person).into(holder.imageViewPhoto1);
+            imageView.setOnClickListener(v -> showImageDialog(imageUrl != null && !imageUrl.isEmpty() ? imageUrl : "default_image_url"));
+            holder.imageContainer.addView(imageView);
         }
 
         holder.text_title.setText(lists.getNomComplet());
@@ -81,22 +93,20 @@ public class AdapterPersonPerdue extends RecyclerView.Adapter<AdapterPersonPerdu
         holder.text_location.setText(lists.getLieuDisparition());
         holder.text_victim_name.setText(lists.getPnom_du_parent());
         holder.text_number.setText(lists.getInformationsContact());
-        holder.imageViewPhoto1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // ((listView)context).other();
-                Intent intent = new Intent(context,PhotoView.class);
-                intent.putExtra("id","personne perdue");
-                intent.putExtra("photo",lists.getPhotoUrl());
-                context.startActivity(intent);
-                ((Activity)context).finish();
-            }
-
-
-        });
 
     }
+    private void showImageDialog(String imageUrl) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(R.layout.dialog_image_view);
 
+        ImageView fullImageView = bottomSheetDialog.findViewById(R.id.fullImageView);
+        Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.fonti) // Image par défaut en cas d'erreur ou de chargement
+                .into(fullImageView);
+
+        bottomSheetDialog.show();
+    }
 
     // total number of rows
     @Override
@@ -119,6 +129,7 @@ public class AdapterPersonPerdue extends RecyclerView.Adapter<AdapterPersonPerdu
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView imageViewPhoto1;
         ProgressBar progressBar;
+        LinearLayout imageContainer;
         TextView text_title,text_description,text_victim_name,text_number,text_location,text_date;
         RelativeLayout relativeLayout;
 
@@ -126,14 +137,13 @@ public class AdapterPersonPerdue extends RecyclerView.Adapter<AdapterPersonPerdu
 
         ViewHolder(View itemView) {
             super(itemView);
-            imageViewPhoto1 = itemView.findViewById(R.id.imageViewPhoto1);
+            imageContainer = itemView.findViewById(R.id.imageContainer);
             text_title = itemView.findViewById(R.id.text_title);
             text_description = itemView.findViewById(R.id.text_description);
             text_victim_name = itemView.findViewById(R.id.text_victim_name);
             text_number= itemView.findViewById(R.id.text_number);
             text_location= itemView.findViewById(R.id.text_location);
             text_date= itemView.findViewById(R.id.text_date);
-            progressBar= itemView.findViewById(R.id.bar);
             progressBar.setVisibility(View.VISIBLE);
             //relativeLayout.setOnClickListener(this);
         }

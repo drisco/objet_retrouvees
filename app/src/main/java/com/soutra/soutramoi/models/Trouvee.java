@@ -1,9 +1,11 @@
 package com.soutra.soutramoi.models;
 
+import java.util.List;
+
 public class Trouvee {
     String id;
     String nom;
-    String photo;
+    private List<String> imageUris;
     String ville;
     String numero;
     String descr;
@@ -13,10 +15,10 @@ public class Trouvee {
     public Trouvee() {
     }
 
-    public Trouvee(String id, String nom, String photo, String ville, String numero, String descr, String titre, String date) {
+    public Trouvee(String id, String nom, List<String> imageUris, String ville, String numero, String descr, String titre, String date) {
         this.id = id;
         this.nom = nom;
-        this.photo = photo;
+        this.imageUris = imageUris;
         this.ville = ville;
         this.numero = numero;
         this.descr = descr;
@@ -40,12 +42,12 @@ public class Trouvee {
         this.nom = nom;
     }
 
-    public String getPhoto() {
-        return photo;
+    public List<String> getImageUris() {
+        return imageUris;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public void setImageUris(List<String> imageUris) {
+        this.imageUris = imageUris;
     }
 
     public String getVille() {

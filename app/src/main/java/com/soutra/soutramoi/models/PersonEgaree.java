@@ -1,11 +1,13 @@
 package com.soutra.soutramoi.models;
 
+import java.util.List;
+
 public class PersonEgaree {
     private String id;
     private String nomComplet;
     private String age;
     private String descriptionPhysique;
-    private String photoUrl;
+    private List<String> imageUris;
     private String lieuDisparition;
     private String dateDisparition;
     private String informationsContact;
@@ -14,11 +16,12 @@ public class PersonEgaree {
     public PersonEgaree() {
     }
 
-    public PersonEgaree(String nomComplet, String age, String descriptionPhysique, String photoUrl, String lieuDisparition, String dateDisparition, String informationsContact,String pnom_du_parent) {
+    public PersonEgaree(String id, String nomComplet, String age, String descriptionPhysique, List<String> imageUris, String lieuDisparition, String dateDisparition, String informationsContact, String pnom_du_parent) {
+        this.id = id;
         this.nomComplet = nomComplet;
         this.age = age;
         this.descriptionPhysique = descriptionPhysique;
-        this.photoUrl = photoUrl;
+        this.imageUris = imageUris;
         this.lieuDisparition = lieuDisparition;
         this.dateDisparition = dateDisparition;
         this.informationsContact = informationsContact;
@@ -28,6 +31,11 @@ public class PersonEgaree {
     public String getId() {
         return id;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getNomComplet() {
         return nomComplet;
     }
@@ -52,12 +60,12 @@ public class PersonEgaree {
         this.descriptionPhysique = descriptionPhysique;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    public List<String> getImageUris() {
+        return imageUris;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setImageUris(List<String> imageUris) {
+        this.imageUris = imageUris;
     }
 
     public String getLieuDisparition() {

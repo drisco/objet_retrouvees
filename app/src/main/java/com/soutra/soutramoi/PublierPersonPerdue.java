@@ -13,11 +13,13 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.Gravity;
 import android.view.View;
         import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
         import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +29,8 @@ import androidx.core.content.ContextCompat;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -38,11 +42,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
         import java.util.HashMap;
-        import java.util.Locale;
+import java.util.List;
+import java.util.Locale;
         import java.util.Map;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class PublierPersonPerdue extends AppCompatActivity {
     int incr;
@@ -50,6 +58,8 @@ public class PublierPersonPerdue extends AppCompatActivity {
     Bitmap captureImage;
     Uri uri;
     ImageView imageViewSelectedImage,pickerdate;
+    private List<Bitmap> selectedImages = new ArrayList<>();
+    private LinearLayout imageContainer;
     byte[] imageData;
     ProgressDialog progressDialog;
     Button confirmer;
@@ -61,6 +71,7 @@ public class PublierPersonPerdue extends AppCompatActivity {
         setContentView(R.layout.activity_publier_person_perdue);
         titre = findViewById(R.id.nomcomplet);
         imageViewSelectedImage =findViewById(R.id.image);
+        imageContainer = findViewById(R.id.imageContainer);
         progressDialog = new ProgressDialog(PublierPersonPerdue.this);
 
 /*
@@ -145,7 +156,7 @@ public class PublierPersonPerdue extends AppCompatActivity {
                     progressDialog.dismiss();
                     return;
                 }
-                if (captureImage == null) {
+                if (selectedImages.isEmpty()) {
                     progressDialog.dismiss();
                     Toast.makeText(PublierPersonPerdue.this, "image de l'objet est obligatoire", Toast.LENGTH_SHORT).show();
                 }else{
@@ -211,13 +222,14 @@ public class PublierPersonPerdue extends AppCompatActivity {
         if (requestCode == 100) {
             if (resultCode == Activity.RESULT_OK){
                 captureImage = (Bitmap) data.getExtras().get("data");
+                addImageToContainer(captureImage);
             }
         }else if(requestCode == 120){
             if (resultCode==Activity.RESULT_OK){
                 uri = data.getData();
                 try {
                     captureImage =MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
-
+                    addImageToContainer(captureImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -233,77 +245,103 @@ public class PublierPersonPerdue extends AppCompatActivity {
         }
     }
 
+    private void addImageToContainer(Bitmap Image) {
+        selectedImages.add(Image);
+        refreshImageContainer();
+    }
+
+    private void refreshImageContainer() {
+        imageContainer.removeAllViews();
+        for (Bitmap bitmap : selectedImages) {
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0);
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            Glide.with(this).load(bitmap)
+                    .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                    .into(imageView);
+            imageContainer.addView(imageView);
+        }
+    }
+
     private void AddInfos() {
+        String   idpays = MySharePreference.readString(PublierPersonPerdue.this, "pays", "");
+        String   postal = MySharePreference.readString(PublierPersonPerdue.this, "postal", "");
+        String titres=titre.getText().toString();
+        String descrs=descr.getText().toString();
+        String noms=nom.getText().toString();
+        String numeros1=numero.getText().toString();
+        String numeros="";
+        if (numeros1.contains("+")){
+            numeros =removeSpace(numeros1);
+        }else{
+            numeros=postal+removeSpace(numeros1);
+        }
+        String villes=ville.getText().toString();
+        Date currentDate = new Date();
+        List<String> imageUris = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+
+        String formattedDate = dateFormat.format(currentDate);
+
+        String finalNumeros = numeros;
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         String timestamp = String.valueOf(System.currentTimeMillis());
         StorageReference imageRef = storageRef.child("photo_de_personne_perdue/"+timestamp + ".jpg");
 
-        // Téléchargez l'image dans Firebase Storage
-        UploadTask uploadTask = imageRef.putBytes(imageData);
-        // Obtenez l'URL de téléchargement de l'image depuis Firebase Storage
-        uploadTask.continueWithTask(task -> {
-            if (!task.isSuccessful()) {
-                throw task.getException();
-            }
-            return imageRef.getDownloadUrl();
-        }).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri downloadUri = task.getResult();
-                String   idpays = MySharePreference.readString(PublierPersonPerdue.this, "pays", "");
-                String   postal = MySharePreference.readString(PublierPersonPerdue.this, "postal", "");
-                final DatabaseReference RootRef;
-                RootRef = FirebaseDatabase.getInstance().getReference("person perdus").child(idpays).push();
-                String id = RootRef.getKey();
-                String titres=titre.getText().toString();
-                String descrs=descr.getText().toString();
-                String noms=nom.getText().toString();
-                String numeros1=numero.getText().toString();
-                String numeros="";
-                if (numeros1.contains("+")){
-                    numeros =removeSpace(numeros1);
-                }else{
-                    numeros=postal+removeSpace(numeros1);
+        final DatabaseReference RootRef;
+        RootRef = FirebaseDatabase.getInstance().getReference("person perdus").child(idpays).push();
+        String id = RootRef.getKey();
+
+        for (Bitmap bitmap : selectedImages) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = imageRef.putBytes(data);
+            uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
                 }
-                String villes=ville.getText().toString();
-                Date currentDate = new Date();
+                return imageRef.getDownloadUrl();
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()){
+                    imageUris.add(task.getResult().toString());
+                    if (imageUris.size() == selectedImages.size()) {
+                        RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                String utf8Descrs = new String(descrs.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                                Map<String, Object> etudiant = new HashMap<>();
+                                etudiant.put("id", id);
+                                etudiant.put("nomComplet", titres);
+                                etudiant.put("descriptionPhysique", utf8Descrs);
+                                etudiant.put("informationsContact", finalNumeros);
+                                etudiant.put("lieuDisparition", villes);
+                                etudiant.put("imageUris", imageUris);
+                                etudiant.put("pnom_du_parent", noms);
+                                etudiant.put("dateDisparition", date.getText().toString());
+                                etudiant.put("date", formattedDate);
+                                RootRef.setValue(etudiant);
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+                                startActivity(new Intent(PublierPersonPerdue.this,PersonMain.class));
+                                finish();
+                            }
 
-                String formattedDate = dateFormat.format(currentDate);
+                            @Override
+                            public void onCancelled(@NonNull @NotNull DatabaseError error) {
 
-                String finalNumeros = numeros;
-                RootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                        String utf8Descrs = new String(descrs.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-                        Map<String, Object> etudiant = new HashMap<>();
-                        etudiant.put("id", id);
-                        etudiant.put("nomComplet", titres);
-                        etudiant.put("descriptionPhysique", utf8Descrs);
-                        etudiant.put("informationsContact", finalNumeros);
-                        etudiant.put("lieuDisparition", villes);
-                        etudiant.put("photoUrl", downloadUri.toString());
-                        etudiant.put("pnom_du_parent", noms);
-                        etudiant.put("dateDisparition", date.getText().toString());
-                        etudiant.put("date", formattedDate);
-                        RootRef.setValue(etudiant);
+                            }
+                        });
 
-                        startActivity(new Intent(PublierPersonPerdue.this,PersonMain.class));
-                        finish();
                     }
+                }
+            });
+        }
 
-                    @Override
-                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-                    }
-                });
-            }else {
-                // Gérer l'erreur lors de la récupération de l'URL de téléchargement
-
-            }
-
-        });
 
     }
 

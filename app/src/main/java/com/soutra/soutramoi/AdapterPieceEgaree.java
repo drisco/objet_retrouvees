@@ -2,18 +2,25 @@ package com.soutra.soutramoi;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.soutra.soutramoi.models.Egaree;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -22,6 +29,8 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class AdapterPieceEgaree extends RecyclerView.Adapter<AdapterPieceEgaree.ViewHolder>{
     private List<Egaree> usersList;
@@ -52,35 +61,28 @@ public class AdapterPieceEgaree extends RecyclerView.Adapter<AdapterPieceEgaree.
     public void onBindViewHolder(AdapterPieceEgaree.ViewHolder holder, int position) {
 
         Egaree lists = usersList.get(position);
+        System.out.println("NBBVFDBVFDJBVDBV.BQVHDBLQB HBBBBVBDQBJQBBLBNBNBNFBJN "+lists.getImageUris());
 
-        if (!lists.getPhoto().isEmpty()){
-            Picasso.get()
-                    .load(lists.getPhoto()).into(holder.imageViewPhoto, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            holder.text.setVisibility(View.GONE);
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible après le chargement réussi
-                        }
+        for (String imageUrl : lists.getImageUris()) {
+            ImageView imageView = new ImageView(context);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+            layoutParams.setMargins(5, 0, 5, 0); // Set margin if needed
+            layoutParams.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(layoutParams);
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(R.drawable.fonti) // Charge l'image par défaut
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            } else {
+                Glide.with(context)
+                        .load(imageUrl)
+                        .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(30, 0)))
+                        .into(imageView);
+            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            holder.text.setVisibility(View.GONE);
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible en cas d'erreur de chargement
-                        }
-                    });
-        }else{
-            Picasso.get()
-                    .load(R.drawable._search).into(holder.imageViewPhoto, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible après le chargement réussi
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            holder.progressBar.setVisibility(View.GONE); // Rend la barre de progression invisible en cas d'erreur de chargement
-                        }
-                    });
+            imageView.setOnClickListener(v -> showImageDialog(imageUrl != null && !imageUrl.isEmpty() ? imageUrl : "default_image_url"));
+            holder.imageContainer.addView(imageView);
         }
         holder.text_title.setText(lists.getTitre());
 
@@ -88,25 +90,23 @@ public class AdapterPieceEgaree extends RecyclerView.Adapter<AdapterPieceEgaree.
 
         holder.text_date.setText(lists.getDate());
         holder.text_location.setText(lists.getVille());
-        holder.text_victim_name.setText(lists.getnom());
+        holder.text_victim_name.setText(lists.getNom());
         holder.text_number.setText(lists.getNumero());
 
-        if (!lists.getPhoto().isEmpty()){
-            holder.imageViewPhoto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // ((listView)context).other();
-                    Intent intent = new Intent(context,PhotoView.class);
-                    intent.putExtra("id","piece egaree");
-                    intent.putExtra("photo",lists.getPhoto());
-                    context.startActivity(intent);
-                    ((Activity)context).finish();
-                }
 
+    }
 
-            });
-        }
+    private void showImageDialog(String imageUrl) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(R.layout.dialog_image_view);
 
+        ImageView fullImageView = bottomSheetDialog.findViewById(R.id.fullImageView);
+        Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.fonti) // Image par défaut en cas d'erreur ou de chargement
+                .into(fullImageView);
+
+        bottomSheetDialog.show();
     }
 
 
@@ -128,7 +128,7 @@ public class AdapterPieceEgaree extends RecyclerView.Adapter<AdapterPieceEgaree.
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView imageViewPhoto;
+        LinearLayout imageContainer;
         ProgressBar progressBar;
         TextView text_title,text_description,text_victim_name,text_number,text_location,text_date,text;
         RelativeLayout relativeLayout;
@@ -139,14 +139,12 @@ public class AdapterPieceEgaree extends RecyclerView.Adapter<AdapterPieceEgaree.
             super(itemView);
             //imageUser = itemView.findViewById(R.id.imageUser);
             text_title = itemView.findViewById(R.id.text_title);
-            imageViewPhoto = itemView.findViewById(R.id.imageViewPhoto1);
+            imageContainer = itemView.findViewById(R.id.imageContainer);
             text_description = itemView.findViewById(R.id.text_description);
             text_victim_name = itemView.findViewById(R.id.text_victim_name);
             text_number= itemView.findViewById(R.id.text_number);
             text_location= itemView.findViewById(R.id.text_location);
-            progressBar= itemView.findViewById(R.id.bar);
-            text= itemView.findViewById(R.id.text);
-            progressBar.setVisibility(View.VISIBLE);
+
             text_date= itemView.findViewById(R.id.text_date);
             //relativeLayout.setOnClickListener(this);
         }
